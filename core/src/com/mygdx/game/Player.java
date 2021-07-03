@@ -11,12 +11,15 @@ import com.badlogic.gdx.math.Rectangle;
 public class Player extends Rectangle {
 	private Animation<Texture> mouthAnimation;
 	private Texture[] playerFrames = new Texture[6];
+	private int spriteWidth, spriteHeight;
 	private boolean xFlipped, yFlipped;
-	static float stateTime = 0f;
+	private float stateTime = 0f;
 	
 	public Player() {
 		width = 64;
 		height = 64;
+		spriteWidth = 64;
+		spriteHeight = 64;
 		x = Gdx.graphics.getWidth() - (width * 2);
 		y = (Gdx.graphics.getHeight() / 2) - (height / 2);
 		xFlipped = false;
@@ -55,7 +58,7 @@ public class Player extends Rectangle {
 			y, 
 			width, height, 
 			0, 0, 
-			(int) width, (int) height, 
+			spriteWidth, spriteHeight, 
 			xFlipped, yFlipped
 		);
 		batch.end();

@@ -13,7 +13,7 @@ public class TextComponent {
 	private FreeTypeFontGenerator.FreeTypeFontParameter freeTypeFontParameter;
 	private GlyphLayout glyphLayout;
 	
-	public TextComponent(int size, String s) {
+	public TextComponent(int size) {
 		font = new BitmapFont();
 		
 		fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Tourney-Black.ttf"));
@@ -23,7 +23,6 @@ public class TextComponent {
 		font = fontGenerator.generateFont(freeTypeFontParameter);
 		
 		glyphLayout  = new GlyphLayout();
-		glyphLayout.setText(font, s);
 
 	}
 	
@@ -35,11 +34,17 @@ public class TextComponent {
 		this.glyphLayout = glyphLayout;
 	}
 
-	public void write(SpriteBatch batch, int x, int y) {
+	public void write(SpriteBatch batch, int x, int y, String s, Color color) {
+		glyphLayout.setText(font, s);
 		batch.begin();
-		font.setColor(Color.WHITE);
+		font.setColor(color);
 		font.draw(batch, glyphLayout, x, y);
 		batch.end();
+	}
+	
+	public void dispose() {
+		fontGenerator.dispose();
+		font.dispose();
 	}
 }
 /**
