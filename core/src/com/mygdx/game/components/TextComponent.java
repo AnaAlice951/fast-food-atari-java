@@ -47,6 +47,3 @@ public class TextComponent {
 		font.dispose();
 	}
 }
-/**
-(xCenter) - glyphLayout.width/2
-(yCenter + (glyphLayout.height/2)*/

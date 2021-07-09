@@ -3,6 +3,7 @@ package com.mygdx.game.screens;
 import java.util.Iterator;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -22,10 +23,16 @@ public class GameScreen implements Screen {
 	private Food food;
 	private int pointsUntilNextLevel;
 	private boolean nextLevelAnimation;
+	private boolean gameOverAnimation;
 	private int points;
 	private int messageY;
 	private int gameSpeed;
 	private int badFoodIngested;
+	
+	private Sound eatSound;
+	private Sound levelUpSound;
+	private Sound gameOverSound;
+	
 	private TextComponent pointsDisplay;
 	private TextComponent nextLevelMessage;
 	private TextComponent endGameMessage;
@@ -38,9 +45,13 @@ public class GameScreen implements Screen {
 		food = new Food();
 		pointsUntilNextLevel = 15;
 		nextLevelAnimation = false;
+		gameOverAnimation = false;
 		messageY = Gdx.graphics.getHeight();
 		gameSpeed = 0;
 		badFoodIngested = 0;
+		eatSound = Gdx.audio.newSound(Gdx.files.internal("sounds/eat.mp3"));
+		levelUpSound = Gdx.audio.newSound(Gdx.files.internal("sounds/levelup.mp3"));
+		gameOverSound = Gdx.audio.newSound(Gdx.files.internal("sounds/gameover.mp3"));
 		pointsDisplay = new TextComponent(50);
 		nextLevelMessage = new TextComponent(50);
 		endGameMessage = new TextComponent(50);
@@ -60,7 +71,21 @@ public class GameScreen implements Screen {
 		camera.update();
 	
 		game.getBatch().setProjectionMatrix(camera.combined);
+		
 	    if(badFoodIngested >= 6) {
+	    	gameOverSound.play();
+	    	gameOverAnimation = true;
+	    	badFoodIngested = 0;
+	    }
+	    
+	    if(pointsUntilNextLevel <= 0) {
+			levelUpSound.play();
+			nextLevelAnimation = true;
+			pointsUntilNextLevel = 15;
+			gameSpeed += 100;
+		}
+	    
+	    if(gameOverAnimation) {
 	    	endGameMessage.write(
 	    			game.getBatch(),
 	    			(int) (Gdx.graphics.getWidth()/2 - endGameMessage.getGlyphLayout().width/2), 
@@ -69,79 +94,76 @@ public class GameScreen implements Screen {
 					Color.RED
 	    	);
 	    	messageY -= 300 * Gdx.graphics.getDeltaTime();
-	    	
-	    	if(messageY <= 0)
+	    
+	    	if(messageY <= 0) {
+	    		gameOverAnimation = false;
 	    		game.setScreen(new StartScreen(game));
-	    } else {
-			if(pointsUntilNextLevel <= 0) {
-				nextLevelAnimation = true;
-				pointsUntilNextLevel = 15;
-				gameSpeed += 100;
+	    	}
+	    } else if(nextLevelAnimation) {
+			nextLevelMessage.write(
+				game.getBatch(), 
+				(int) (Gdx.graphics.getWidth()/2 - nextLevelMessage.getGlyphLayout().width/2), 
+				messageY,
+				"You're getting healthier!",
+				Color.WHITE
+			);
+			messageY -= 300 * Gdx.graphics.getDeltaTime();
+			
+			if(messageY <= 0)
+				nextLevelAnimation = false;
+		} else {
+			messageY = Gdx.graphics.getHeight();
+			
+			game.getBatch().begin();
+			for(int i = 0; i < badFoodIngested; i++)
+				game.getBatch().draw(
+						new Texture(Gdx.files.internal("bad-food/hamburger.png")), 
+						(int) ((Gdx.graphics.getWidth()/6) * i), 
+						(int) (Gdx.graphics.getHeight() - 250 + 70), 
+						64, 64, 
+						0, 0, 
+						32, 32, 
+						false, false
+					);
+			game.getBatch().end();
+			
+			pointsDisplay.write(
+				game.getBatch(), 
+				(int) (Gdx.graphics.getWidth()/2 - pointsDisplay.getGlyphLayout().width/2), 
+				(int) ((Gdx.graphics.getHeight() - 50) + (pointsDisplay.getGlyphLayout().height/2)),
+				String.valueOf(points),
+				Color.WHITE
+			);
+			
+			food.render(game.getBatch());
+		      
+			if(TimeUtils.millis() - food.lastFoodSpawnTime > MathUtils.random(500, 2000)) food.spawnFood((int) ((Math.random() * 18) + 1));
+			
+			Iterator<FoodSprite> iter = food.foods.iterator();
+			while(iter.hasNext()) {
+				FoodSprite food = iter.next();
+				food.x += (food.getBaseSpeed() + gameSpeed) * Gdx.graphics.getDeltaTime();
+				
+				if(food.x + 64 < 0)
+					iter.remove();
+				
+				if(player.overlaps(food)) {
+					eatSound.play();
+					points += food.getValue();
+					pointsUntilNextLevel--;
+		            iter.remove();
+		            
+		            if(food.getBad()) {
+		            	points += food.getValue();
+		            	badFoodIngested++;
+		            }
+		         }
 			}
 			
-			if(nextLevelAnimation) {
-				nextLevelMessage.write(
-					game.getBatch(), 
-					(int) (Gdx.graphics.getWidth()/2 - nextLevelMessage.getGlyphLayout().width/2), 
-					messageY,
-					"You're getting fattier!",
-					Color.WHITE
-				);
-				messageY -= 300 * Gdx.graphics.getDeltaTime();
-				
-				if(messageY <= 0)
-					nextLevelAnimation = false;
-			} else {
-				messageY = Gdx.graphics.getHeight();
-				
-				game.getBatch().begin();
-				for(int i = 0; i < badFoodIngested; i++)
-					game.getBatch().draw(
-							new Texture(Gdx.files.internal("bad-food/hamburger.png")), 
-							(int) ((Gdx.graphics.getWidth()/6) * i), 
-							(int) (Gdx.graphics.getHeight() - 250 + 70), 
-							64, 64, 
-							0, 0, 
-							32, 32, 
-							false, false
-						);
-				game.getBatch().end();
-				
-				pointsDisplay.write(
-					game.getBatch(), 
-					(int) (Gdx.graphics.getWidth()/2 - pointsDisplay.getGlyphLayout().width/2), 
-					(int) ((Gdx.graphics.getHeight() - 50) + (pointsDisplay.getGlyphLayout().height/2)),
-					String.valueOf(points),
-					Color.WHITE
-				);
-				
-				food.render(game.getBatch());
-			      
-				if(TimeUtils.millis() - food.lastFoodSpawnTime > MathUtils.random(500, 2000)) food.spawnFood((int) ((Math.random() * 18) + 1));
-				
-				Iterator<FoodSprite> iter = food.foods.iterator();
-				while(iter.hasNext()) {
-					FoodSprite food = iter.next();
-					food.x += (food.baseSpeed + gameSpeed) * Gdx.graphics.getDeltaTime();
-					
-					if(food.x + 64 < 0)
-						iter.remove();
-					
-					if(player.overlaps(food)) {
-						points++;
-						pointsUntilNextLevel--;
-			            iter.remove();
-			            
-			            if(food.bad)
-			            	badFoodIngested++;
-			         }
-				}
-				
-				player.move();
-			    player.verifyOverflow();
-				player.render(game.getBatch());
-			}
-	    }
+			player.move();
+		    player.verifyOverflow();
+			player.render(game.getBatch());
+		}
 	}
 
 	@Override
@@ -163,7 +185,7 @@ public class GameScreen implements Screen {
 	@Override
 	public void dispose() {
 		for(int i = 0; i < food.foods.size(); i++)
-			food.foods.get(i).img.dispose();
+			food.foods.get(i).getImg().dispose();
 		
 		pointsDisplay.dispose();
 		nextLevelMessage.dispose();

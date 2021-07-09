@@ -15,12 +15,13 @@ public class Food{
 	 
 	@SuppressWarnings("serial")
 	public class FoodSprite extends Rectangle {
-		public Texture img;
+		private Texture img;
 		private int spriteWidth, spriteHeight;
-		public boolean bad = false;
-		public int baseSpeed;
+		private boolean bad = false;
+		private int baseSpeed;
+		private int value;
 		
-		public FoodSprite(Texture img, boolean bad, int baseSpeed) {
+		public FoodSprite(Texture img, boolean bad, int baseSpeed, int value) {
 			this.img = img;
 			this.baseSpeed = baseSpeed;
 			x = 0;
@@ -30,15 +31,32 @@ public class Food{
 			spriteWidth = 32;
 			spriteHeight = 32;
 			this.bad = bad;
+			this.value = value;
+		}
+		
+		public boolean getBad() {
+			return this.bad;
+		}
+		
+		public int getBaseSpeed() {
+			return this.baseSpeed;
+		}
+		
+		public Texture getImg() {
+			return this.img;
+		}
+		
+		public int getValue() {
+			return this.value;
 		}
 	}
 	
 	public void spawnFood(int i) {
 		FoodSprite food;
 		if (MathUtils.random(0, 3) == 1) {
-			food = new FoodSprite(new Texture(Gdx.files.internal("bad-food/hamburger.png")), true, MathUtils.random(200, 400));
+			food = new FoodSprite(new Texture(Gdx.files.internal("bad-food/hamburger.png")), true, MathUtils.random(200, 400), 0);
 		} else {
-			food = new FoodSprite(new Texture(Gdx.files.internal("good-food/" + i + ".png")), false, MathUtils.random(200, 400));
+			food = new FoodSprite(new Texture(Gdx.files.internal("good-food/" + i + ".png")), false, MathUtils.random(200, 400), i);
 		}
 		
 		foods.add(food);
