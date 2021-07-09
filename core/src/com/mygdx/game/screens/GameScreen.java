@@ -32,6 +32,7 @@ public class GameScreen implements Screen {
 	private Sound eatSound;
 	private Sound levelUpSound;
 	private Sound gameOverSound;
+	private Sound vomitSound;
 	
 	private TextComponent pointsDisplay;
 	private TextComponent nextLevelMessage;
@@ -52,6 +53,7 @@ public class GameScreen implements Screen {
 		eatSound = Gdx.audio.newSound(Gdx.files.internal("sounds/eat.mp3"));
 		levelUpSound = Gdx.audio.newSound(Gdx.files.internal("sounds/levelup.mp3"));
 		gameOverSound = Gdx.audio.newSound(Gdx.files.internal("sounds/gameover.mp3"));
+		vomitSound = Gdx.audio.newSound(Gdx.files.internal("sounds/vomit.mp3"));
 		pointsDisplay = new TextComponent(50);
 		nextLevelMessage = new TextComponent(50);
 		endGameMessage = new TextComponent(50);
@@ -148,14 +150,16 @@ public class GameScreen implements Screen {
 					iter.remove();
 				
 				if(player.overlaps(food)) {
-					eatSound.play();
 					points += food.getValue();
 					pointsUntilNextLevel--;
 		            iter.remove();
 		            
 		            if(food.getBad()) {
+		            	vomitSound.play();
 		            	points += food.getValue();
 		            	badFoodIngested++;
+		            } else {
+		            	eatSound.play();
 		            }
 		         }
 			}
