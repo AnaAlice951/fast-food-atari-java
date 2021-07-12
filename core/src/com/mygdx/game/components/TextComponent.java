@@ -7,6 +7,17 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
+/**
+ * Classe responsável pela criação dos componentes de texto na tela
+ * 
+ * Referências:
+ * 
+ * Resposta de Luis Frontanilla no fórum do StackOverflow
+ * @link https://stackoverflow.com/questions/57045981/draw-multi-line-bitmapfont-vertically-centered
+ * 
+ * Resposta de Pinkie Swirl no fórum do StackOverflow
+ * @link https://stackoverflow.com/questions/14271570/libgdx-is-there-an-easy-way-to-center-text-on-each-axis-on-a-button
+ */
 public class TextComponent {
 	private BitmapFont font;
 	private FreeTypeFontGenerator fontGenerator;

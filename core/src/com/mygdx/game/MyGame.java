@@ -4,6 +4,9 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.mygdx.game.screens.StartScreen;
 
+/**
+ * Classe inicializadora
+ */
 public class MyGame extends Game {
 	
 	private SpriteBatch batch;
@@ -11,15 +14,13 @@ public class MyGame extends Game {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+
+		// Navega para a tela inicial do jogo
 		this.setScreen(new StartScreen(this));
 	}
 
 	public SpriteBatch getBatch() {
 		return batch;
-	}
-
-	public void setBatch(SpriteBatch batch) {
-		this.batch = batch;
 	}
 
 	@Override

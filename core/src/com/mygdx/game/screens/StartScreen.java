@@ -8,6 +8,14 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.mygdx.game.MyGame;
 import com.mygdx.game.components.TextComponent;
 
+/**
+ * Classe responsável por renderizar a tela inicial do jogo (menu inicial)
+ * 
+ * Referência:
+ * 
+ * Resposta de Angel Angel no fórum do StackOverflow
+ * @link https://stackoverflow.com/questions/28808423/how-to-move-one-screen-to-another-screen-in-libgdx
+ */
 public class StartScreen implements Screen {
 	private MyGame game;
 	private OrthographicCamera camera;
@@ -19,6 +27,7 @@ public class StartScreen implements Screen {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		
+		// Cria um componente de texto vazio com tamanho 50pt
 		text = new TextComponent(50);
 		
 	}
@@ -29,10 +38,13 @@ public class StartScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
+		// Limpa a tela
 		ScreenUtils.clear(0, 0, 0, 0);
+
 		camera.update();
 		game.getBatch().setProjectionMatrix(camera.combined);
 		
+		// Escreve a frase "Click to play!" na tela
 		text.write(
 			game.getBatch(), 
 			(int) ((Gdx.graphics.getWidth()/2) - text.getGlyphLayout().width/2),
@@ -41,8 +53,12 @@ public class StartScreen implements Screen {
 			Color.GOLD
 		);
 		
+		// Confere se o usuário clicou na tela
 		if (Gdx.input.isTouched()) {
+			// Inicia o jogo e navega para a tela de jogo
 			game.setScreen(new GameScreen(game));
+			
+			// Remove objetos inutilizados da memória
 			dispose();
 		}
 	}
